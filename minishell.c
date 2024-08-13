@@ -8,30 +8,26 @@
 
 ********************************************************************/
 
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <stdio.h>
-#include <string.h>
 #include <unistd.h>
-#include <stdlib.h>
-#include <signal.h>
 
-#define NV 20			/* max number of command tokens */
-#define NL 100			/* input buffer size */
-char line[NL];	/* command input buffer */
-
+#define NV 20  /* max number of command tokens */
+#define NL 100 /* input buffer size */
+char line[NL]; /* command input buffer */
 
 /*
-	shell prompt
+        shell prompt
  */
 
-void prompt(void)
-{
-  fprintf(stdout, "\n msh> ");
+void prompt(void) {
+  // fprintf(stdout, "\n msh> ");
   fflush(stdout);
-
 }
-
 
 int main(int argk, char *argv[], char *envp[])
 /* argk - number of arguments */
@@ -39,55 +35,60 @@ int main(int argk, char *argv[], char *envp[])
 /* envp - environment pointer */
 
 {
-  int             frkRtnVal;	/* value returned by fork sys call */
-  int             wpid;		/* value returned by wait */
-  char           *v[NV];	/* array of pointers to command line tokens */
-  char           *sep = " \t\n";/* command line token separators    */
-  int             i;		/* parse index */
-
+  int frkRtnVal; /* value returned by fork sys call */
+  // int             wpid;		/* value returned by wait */
+  char *v[NV];         /* array of pointers to command line tokens */
+  char *sep = " \t\n"; /* command line token separators    */
+  int i;               /* parse index */
 
   /* prompt for and process one command line at a time  */
 
-  while (1) {			/* do Forever */
+  while (1) { /* do Forever */
     prompt();
     fgets(line, NL, stdin);
     fflush(stdin);
 
-    if (feof(stdin)) {		/* non-zero on EOF  */
+    if (feof(stdin)) { /* non-zero on EOF  */
 
-      fprintf(stderr, "EOF pid %d feof %d ferror %d\n", getpid(),
-	      feof(stdin), ferror(stdin));
+      fprintf(stderr, "EOF pid %d feof %d ferror %d\n", getpid(), feof(stdin),
+              ferror(stdin));
       exit(0);
     }
     if (line[0] == '#' || line[0] == '\n' || line[0] == '\000')
-      continue;			/* to prompt */
+      continue; /* to prompt */
 
     v[0] = strtok(line, sep);
     for (i = 1; i < NV; i++) {
       v[i] = strtok(NULL, sep);
-      if (v[i] == NULL)
-	break;
+      if (v[i] == NULL) break;
     }
     /* assert i is number of tokens + 1 */
 
-    /* fork a child process to exec the command in v[0] */
+    // Handle "cd" command
+    if (strcmp(v[0], "cd") == 0 && v[1] != NULL) {
+      if (chdir(v[1]) != 0) {
+        perror("cd failed");
+      }
+      continue;
+    }
 
+    /* fork a child process to exec the command in v[0] */
     switch (frkRtnVal = fork()) {
-    case -1:			/* fork returns error to parent process */
+      case -1: /* fork returns error to parent process */
       {
-	break;
+        perror("fork failed L bozo");
+        break;
       }
-    case 0:			/* code executed only by child process */
+      case 0: /* code executed only by child process */
       {
-	execvp(v[0], v);
-	
+        execvp(v[0], v);
       }
-    default:			/* code executed only by parent process */
+      default: /* code executed only by parent process */
       {
-	wpid = wait(0);
-	printf("%s done \n", v[0]);
-	break;
+        wait(0);
+        // printf("%s done \n", v[0]);
+        break;
       }
-    }				/* switch */
-  }				/* while */
-}				/* main */
+    } /* switch */
+  } /* while */
+} /* main */
