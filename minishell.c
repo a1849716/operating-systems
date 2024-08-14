@@ -59,7 +59,9 @@ int main(int argk, char *argv[], char *envp[])
     v[0] = strtok(line, sep);
     for (i = 1; i < NV; i++) {
       v[i] = strtok(NULL, sep);
-      if (v[i] == NULL) break;
+      if(v[i] == '&'){
+        //change to background process
+      } else if (v[i] == NULL) break;
     }
     /* assert i is number of tokens + 1 */
 
@@ -80,7 +82,10 @@ int main(int argk, char *argv[], char *envp[])
       }
       case 0: /* code executed only by child process */
       {
-        execvp(v[0], v);
+        if(execvp(v[0], v) == -1){
+          //printf("Process did not terminate correctly\n");
+          exit(1);
+        };
       }
       default: /* code executed only by parent process */
       {
