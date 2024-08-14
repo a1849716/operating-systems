@@ -30,15 +30,18 @@ void prompt(void) {
   fflush(stdout);
 }
 
+//struct for the background process
 struct background_struct {
   int process_id;
   char process_name[NL];
   bool execution_stat;
 };
 
+//counter for background process 
 int background_counter = 0;
 struct background_struct lmao[20];
 
+//print function to check status of background processes
 void print_background_thing(){
   int process_id_print;
   for(int k = 0; k < background_counter; k++){
@@ -70,7 +73,8 @@ int main(int argk, char *argv[], char *envp[])
     prompt();
     fgets(line, NL, stdin);
     fflush(stdin);
-
+    
+    //calling print function after each input
     print_background_thing();
 
     if (feof(stdin)) { /* non-zero on EOF  */
@@ -95,7 +99,7 @@ int main(int argk, char *argv[], char *envp[])
       }
       continue;
     }
-    // detecting &
+    // detecting "&"
     bool background = false;
     if (strcmp(v[i - 1], "&") == 0) {
       background = true;
@@ -116,8 +120,10 @@ int main(int argk, char *argv[], char *envp[])
         exit(EXIT_FAILURE);
       }
       default: /* code executed only by parent process */
-      {
+      { 
+        //if the child process is a background process
         if (background) {
+          //updating values
           lmao[background_counter].execution_stat = false;
           lmao[background_counter].process_id = frkRtnVal;
           strcpy(lmao[background_counter].process_name, v[0]);
