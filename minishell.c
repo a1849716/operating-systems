@@ -59,7 +59,7 @@ int main(int argk, char *argv[], char *envp[])
     v[0] = strtok(line, sep);
     for (i = 1; i < NV; i++) {
       v[i] = strtok(NULL, sep);
-      if(v[i] == '&'){
+      if(strcmp(v[i], "&")){
         //change to background process
       } else if (v[i] == NULL) break;
     }
