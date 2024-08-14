@@ -66,7 +66,7 @@ int main(int argk, char *argv[], char *envp[])
     // Handle "cd" command
     if (strcmp(v[0], "cd") == 0 && v[1] != NULL) {
       if (chdir(v[1]) != 0 || v[1] == NULL) {
-        perror("cd failed");
+        perror("cd failed L bozo");
       }
       continue;
     }
