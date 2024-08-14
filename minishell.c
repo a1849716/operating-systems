@@ -49,9 +49,8 @@ int main(int argk, char *argv[], char *envp[])
     fflush(stdin);
 
     if (feof(stdin)) { /* non-zero on EOF  */
-
-      fprintf(stderr, "EOF pid %d feof %d ferror %d\n", getpid(), feof(stdin),
-              ferror(stdin));
+      //fprintf(stderr, "EOF pid %d feof %d ferror %d\n", getpid(), feof(stdin),
+              //ferror(stdin));
       exit(0);
     }
     if (line[0] == '#' || line[0] == '\n' || line[0] == '\000')
@@ -65,20 +64,12 @@ int main(int argk, char *argv[], char *envp[])
     /* assert i is number of tokens + 1 */
 
     // Handle "cd" command
-    if (strcmp(v[0], "cd") == 0) {
-            if (v[1] == NULL) {
-                // No argument provided; change to HOME directory
-                char *homeDir = getenv("HOME");
-                if (homeDir == NULL) {
-                    fprintf(stderr, "cd failed: HOME environment variable not set\n");
-                } else if (chdir(homeDir) != 0) {
-                    perror("cd failed");
-                }
-            } else if (chdir(v[1]) != 0) {
-                perror("cd failed");
-            }
-            continue;
-        }
+    if (strcmp(v[0], "cd") == 0 && v[1] != NULL) {
+      if (chdir(v[1]) != 0 || v[1] == NULL) {
+        perror("cd failed");
+      }
+      continue;
+    }
 
     /* fork a child process to exec the command in v[0] */
     switch (frkRtnVal = fork()) {
